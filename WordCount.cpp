@@ -4,15 +4,15 @@
 int *getCharNum(char *filename, int *totalNum);
 int main(int argc, char *argv[]){
     char filename[30];
-    // totalNum[0]: 总行数  totalNum[1]: 总字符数  totalNum[2]: 总单词数
-    int totalNum[3] = {0, 0, 0};
+    // totalNum[0]: 总字符数  totalNum[1]: 总单词数
+    int totalNum[2] = {0, 0};
     strcpy(filename, argv[2]);
     
     if(getCharNum(filename, totalNum)){
 		if((strcmp(argv[1], "-c")==0) && (strcmp(argv[1], "-w")!=0)){
-			printf("TotalChars: %d\n", totalNum[1]);
+			printf("TotalChars: %d\n", totalNum[0]);
 		}else if((strcmp(argv[1], "-c")!=0) && (strcmp(argv[1], "-w")==0)){
-			printf("TotalWords: %d\n", totalNum[2]);
+			printf("TotalWords: %d\n", totalNum[1]);
 		}
     }else{
         printf("Error!\n");
@@ -22,8 +22,6 @@ int main(int argc, char *argv[]){
 }
 
 /**
- * 统计文件的字符数、单词数、行数
- *
  * @param  filename  文件名
  * @param  totalNum  文件统计数据
  *
@@ -54,20 +52,21 @@ int *getCharNum(char *filename, int *totalNum){
             if( c==' ' || c=='\t'){  // 遇到空格
                 !isLastBlank && wordNum++;  // 如果上个字符不是空格，那么单词数加1
                 isLastBlank = 1;
-            }
-            else{  
-                charNum++;  // 字符数加1
+            }else if (buffer[i] == ',' && buffer[i - 1] != ',' && buffer[i + 1] != ',') {
+                //由逗号分割开的都视为单词
+                wordNum++;
+                isLastBlank = 1;
+							
+			}else{  // 忽略换行符
+                charNum++;  // 如果既不是换行符也不是空格，字符数加1
                 isLastBlank = 0;
             }
         }
-        
         !isLastBlank && wordNum++;  // 如果最后一个字符不是空格，那么单词数加1
         isLastBlank = 1;  // 每次换行重置为1
-        
         // 一行结束，计算总字符数、总单词数、总行数
-        totalNum[0]++;  // 总行数
-        totalNum[1] += charNum;  // 总字符数
-        totalNum[2] += wordNum;  // 总单词数
+        totalNum[0] += charNum;  // 总字符数
+        totalNum[1] += wordNum;  // 总单词数
 
         // 置零，重新统计下一行        
         charNum = 0;
